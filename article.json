@@ -1,1 +1,204 @@
-
+{
+  "config": {
+    "pageTitle": "The American Ledger",
+    "subtitle": "Truth. Independence. America.",
+    "globalSettings": {
+      "theme": "classic-newspaper",
+      "contentFiltering": {
+        "enabled": false,
+        "categoriesToExclude": []
+      }
+    },
+    "layout": [
+      {
+        "id": "hero-section",
+        "type": "HeroSection",
+        "position": "top-center",
+        "layout": "hero-grid",
+        "showSectionTitle": false,
+        "sectionTitle": "",
+        "subtitle": "",
+        "contentSelector": {
+          "section": "hero",
+          "categories": [
+            "breaking",
+            "featured",
+            "spotlight"
+          ],
+          "sortBy": "priority",
+          "sortOrder": "desc",
+          "limit": 3
+        },
+        "displayOptions": {
+          "mainArticle": {
+            "showImage": true,
+            "showAuthor": true,
+            "showPreview": true,
+            "showReadingTime": true,
+            "showTags": true
+          },
+          "sidebarArticles": {
+            "showImage": true,
+            "showAuthor": true,
+            "showPreview": false,
+            "showReadingTime": true
+          }
+        }
+      },
+      {
+        "id": "left-section",
+        "type": "ArticleSection",
+        "position": "left-column",
+        "layout": "vertical-feed",
+        "showSectionTitle": true,
+        "sectionTitle": "News & Politics",
+        "subtitle": "Latest developments and analysis",
+        "contentSelector": {
+          "section": "left",
+          "categories": [
+            "politics",
+            "national",
+            "world",
+            "economy",
+            "investigation"
+          ],
+          "sortBy": "date",
+          "sortOrder": "desc",
+          "limit": 10
+        },
+        "pagination": {
+          "enabled": true,
+          "itemsPerPage": 6,
+          "loadMoreText": "Load More News"
+        },
+        "cardStyles": {
+          "high": {
+            "showImage": true,
+            "showAuthor": true,
+            "showPreview": true,
+            "showReadingTime": true,
+            "showTags": true
+          },
+          "medium": {
+            "showImage": true,
+            "showAuthor": true,
+            "showPreview": true,
+            "showReadingTime": true,
+            "showTags": false
+          },
+          "low": {
+            "showImage": false,
+            "showAuthor": true,
+            "showPreview": false,
+            "showReadingTime": false,
+            "showTags": false
+          }
+        }
+      },
+      {
+        "id": "right-section",
+        "type": "ArticleSection",
+        "position": "right-column",
+        "layout": "vertical-feed",
+        "showSectionTitle": true,
+        "sectionTitle": "Opinion & Features",
+        "subtitle": "Commentary, culture, and lifestyle",
+        "contentSelector": {
+          "section": "right",
+          "categories": [
+            "opinion",
+            "analysis",
+            "culture",
+            "lifestyle",
+            "technology",
+            "sports",
+            "entertainment"
+          ],
+          "sortBy": "date",
+          "sortOrder": "desc",
+          "limit": 12
+        },
+        "pagination": {
+          "enabled": true,
+          "itemsPerPage": 8,
+          "loadMoreText": "Load More Features"
+        },
+        "cardStyles": {
+          "high": {
+            "showImage": true,
+            "showAuthor": true,
+            "showPreview": true,
+            "showReadingTime": true,
+            "showTags": true
+          },
+          "medium": {
+            "showImage": true,
+            "showAuthor": true,
+            "showPreview": true,
+            "showReadingTime": true,
+            "showTags": false
+          },
+          "low": {
+            "showImage": false,
+            "showAuthor": true,
+            "showPreview": false,
+            "showReadingTime": false,
+            "showTags": false
+          }
+        }
+      }
+    ]
+  },
+  "articles": [
+    {
+      "id": "article-001",
+      "title": "he",
+      "preview": "rthtrht",
+      "content": "<p>rthtr</p>",
+      "author": "th",
+      "date": "2025-06-11T00:02:24.210Z",
+      "section": "hero",
+      "category": "featured",
+      "priority": "medium",
+      "featured": true,
+      "imageUrl": "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcSdsrvUs2jyc0BwI1KFoQIaSa9jjmBCSQGLjCdZUM2_skS-lUnNC7XIdyPA_BiAZyYzLjimxYeJyw-m9mo",
+      "readingTime": 5,
+      "tags": [],
+      "status": "active"
+    }
+  ],
+  "sections": {
+    "hero": [
+      {
+        "id": "article-001",
+        "title": "he",
+        "preview": "rthtrht",
+        "content": "<p>rthtr</p>",
+        "author": "th",
+        "date": "2025-06-11T00:02:24.210Z",
+        "section": "hero",
+        "category": "featured",
+        "priority": "medium",
+        "featured": true,
+        "imageUrl": "https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:ANd9GcSdsrvUs2jyc0BwI1KFoQIaSa9jjmBCSQGLjCdZUM2_skS-lUnNC7XIdyPA_BiAZyYzLjimxYeJyw-m9mo",
+        "readingTime": 5,
+        "tags": [],
+        "status": "active"
+      }
+    ],
+    "left": [],
+    "right": []
+  },
+  "metadata": {
+    "totalArticles": 1,
+    "activeArticles": 1,
+    "draftArticles": 0,
+    "archivedArticles": 0,
+    "exportDate": "2025-06-11T00:02:30.809Z",
+    "sectionsBreakdown": {
+      "hero": 1,
+      "left": 0,
+      "right": 0
+    }
+  }
+}
