@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The American Ledger</title>
+  <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
+    rel="stylesheet"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&display=swap"
+    rel="stylesheet"
+  />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/react/17.0.2/umd/react.development.js"
+  ></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/17.0.2/umd/react-dom.development.js"
+  ></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+  <style>
+    body {
+      background-color: #f9fafb;
+      font-family: Georgia, 'Times New Roman', serif;
+    }
+    .font-playfair {
+      font-family: 'Playfair Display', serif;
+    }
+    .font-georgia {
+      font-family: Georgia, 'Times New Roman', serif;
+    }
+
+    .article-expanded {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 100;
+      background: #ffffff;
+      overflow-y: auto;
+      padding: 1rem;
+    }
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .line-clamp-3 {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+     .line-clamp-4 {
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .newspaper-column-border {
+      border-right: 1px solid #e0e0e0;
+    }
+    .newspaper-column-border:last-child {
+      border-right: none;
+    }
+    .nyt-section-heading {
+      font-family: 'Roboto', sans-serif;
+      font-weight: 700;
+      font-size: 0.8125rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 0.25rem;
+      margin-bottom: 1rem;
+    }
+     .nyt-opinion-byline {
+      font-family: 'Roboto', sans-serif;
+      font-weight: 700;
+      font-size: 0.6875rem;
+      text-transform: uppercase;
+      color: #121212;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+     .nyt-opinion-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.125rem;
+      line-height: 1.3;
+    }
+    @media (max-width: 768px) {
+      .newspaper-column-border {
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+      }
+      .newspaper-column-border:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+      }
+    }
+  </style>
+</head>
+<body class="bg-white text-black">
+  <div class="border-b bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-between items-center py-2 text-sm">
+        <div>
+          <span class="text-black" id="current-date"></span>
+        </div>
+        <div>
+          <a href="#" class="text-black hover:text-blue-600">Today's Paper</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <header class="max-w-7xl mx-auto px-4 py-6 text-center bg-white">
+    <h1
+      class="text-6xl font-bold"
+      style="font-family: 'Playfair Display', serif;"
+    >
+      The American Ledger
+    </h1>
+  </header>
+
+  <nav class="border-t border-b bg-white">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-center space-x-6 py-3 text-sm">
+        <a href="index.html" class="active">Home</a>
+        <a href="#">World</a>
+        <a href="#">Politics</a>
+        <a href="#">Economy</a>
+        <a href="#">Business</a>
+        <a href="#">Tech</a>
+        <a href="#">Opinion</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto px-2 md:px-4 py-6">
+    <div id="root"></div>
+  </main>
+
+  <footer class="text-center py-8 mt-12 border-t border-gray-200">
+    <p class="text-xs text-gray-500">&copy; 2025 The American Ledger. All rights reserved.</p>
+  </footer>
+
+  <script type="text/babel">
+    // --- UTILITIES ---
+    const formatDate = (dateString) => {
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      return new Date(dateString).toLocaleDateString('en-US', options);
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const dateElement = document.getElementById('current-date');
+      if (dateElement) {
+        dateElement.textContent = formatDate(new Date());
+      }
+    });
+
+    // --- GENERIC COMPONENTS (REMAIN MOSTLY UNCHANGED) ---
+
+    const ExpandedArticleView = ({ article, onClose }) => {
+      if (!article) return null;
+      const createMarkup = (htmlContent) => ({ __html: htmlContent });
+      const placeholderImg = `https://placehold.co/800x450/EEE/333?text=${encodeURIComponent(article.category || 'News')}`;
+      const imageUrl = article.imageUrl || placeholderImg;
+
+      return (
+        <div className="article-expanded fixed inset-0 z-50 bg-white overflow-y-auto p-4 md:p-8">
+          <div className="max-w-3xl mx-auto">
+            <button
+              onClick={onClose}
+              className="mb-6 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium"
+            >
+              &larr; Back to News
+            </button>
+            <article>
+              <img
+                src={imageUrl}
+                alt={article.title || 'Article image'}
+                className="w-full h-auto max-h-[500px] object-cover rounded-md mb-6"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = placeholderImg;
+                }}
+              />
+              <h1 className="text-3xl md:text-4xl font-playfair font-bold mb-3 text-gray-900">
+                {article.title || 'Untitled Article'}
+              </h1>
+              <div className="text-gray-500 text-sm mb-1">
+                By <span className="font-medium text-gray-700">{article.author || 'Staff Reporter'}</span>
+              </div>
+              <div className="text-gray-500 text-xs mb-4">
+                Published:{' '}
+                {new Date(article.date || Date.now()).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+                {article.readingTime && ` • ${article.readingTime} min read`}
+              </div>
+              <div
+                className="prose max-w-none font-georgia text-gray-700"
+                dangerouslySetInnerHTML={createMarkup(article.content || '<p>No content available.</p>')}
+              />
+            </article>
+          </div>
+        </div>
+      );
+    };
+
+    const LoadingState = () => (
+      <div className="text-center p-8">
+        <p className="mt-8 text-gray-500">Loading The American Ledger...</p>
+      </div>
+    );
+
+    const SectionHeading = ({ title, subtitle }) => {
+      if (!title) return null;
+      return (
+        <div className="mb-4">
+          <h2 className="nyt-section-heading">{title}</h2>
+          {subtitle && <p className="text-gray-600 text-sm mt-2">{subtitle}</p>}
+        </div>
+      );
+    };
+
+    const MainArticle = ({ article, style }) => {
+      const [expandedArticle, setExpandedArticle] = React.useState(null);
+      if (!article) return <div className="p-2 text-xs text-gray-400">Main article unavailable.</div>;
+
+      const openArticle = () => setExpandedArticle(article);
+      const closeArticle = () => setExpandedArticle(null);
+
+      const placeholderImg = `https://placehold.co/800x450/EEE/333?text=${encodeURIComponent(article.category || 'News')}`;
+      const imageUrl = article.imageUrl || placeholderImg;
+
+      return (
+        <div className="cursor-pointer" onClick={openArticle}>
+          {style.showImage && (
+            <img
+              src={imageUrl}
+              alt={article.title}
+              className="w-full h-auto max-h-96 object-cover rounded-md mb-4"
+              onError={(e) => { e.target.onerror = null; e.target.src = placeholderImg; }}
+            />
+          )}
+          <h2 className="text-3xl md:text-4xl font-playfair font-bold mb-2 text-gray-900">
+            {article.title}
+          </h2>
+          {style.showAuthor && article.author && (
+            <div className="text-gray-600 text-sm mb-1">
+              By <span className="font-medium">{article.author}</span>
+            </div>
+          )}
+          {style.showPreview && article.preview && (
+            <p className="text-gray-700 text-base line-clamp-3 mb-2">{article.preview}</p>
+          )}
+          {style.showReadingTime && article.readingTime && (
+            <div className="text-gray-500 text-xs uppercase tracking-wider">
+              {article.readingTime} MIN READ
+            </div>
+          )}
+          {expandedArticle && <ExpandedArticleView article={expandedArticle} onClose={closeArticle} />}
+        </div>
+      );
+    };
+
+    // --- REVISED COMPONENTS TO ACCEPT ARTICLE OBJECTS ---
+
+    const SidebarArticles = ({ articles, style }) => {
+      const [expandedArticle, setExpandedArticle] = React.useState(null);
+      if (!articles || articles.length === 0) return null;
+
+      const openArticle = (article) => setExpandedArticle(article);
+      const closeArticle = () => setExpandedArticle(null);
+
+      const placeholderImg = (cat) => `https://placehold.co/150x100/EEE/333?text=${encodeURIComponent(cat || 'N')}`;
+
+      return (
+        <div className="space-y-4">
+          {articles.map((article) => {
+            if (!article) return null;
+            const imageUrl = article.imageUrl || placeholderImg(article.category);
+            return (
+              <React.Fragment key={article.id}>
+                <div
+                  className="flex items-center gap-3 cursor-pointer"
+                  onClick={() => openArticle(article)}
+                >
+                  {style.showImage && (
+                    <img
+                      src={imageUrl}
+                      alt={article.title}
+                      className="w-20 h-16 object-cover rounded flex-shrink-0"
+                      onError={(e) => { e.target.onerror = null; e.target.src = placeholderImg(article.category); }}
+                    />
+                  )}
+                  <div>
+                    <h4 className="font-semibold text-sm line-clamp-2 text-gray-800 hover:text-black">
+                      {article.title}
+                    </h4>
+                    {style.showReadingTime && article.readingTime && (
+                         <div className="text-xs text-gray-500 mt-1">{article.readingTime} MIN READ</div>
+                    )}
+                  </div>
+                </div>
+                {expandedArticle && expandedArticle.id === article.id && (
+                  <ExpandedArticleView article={expandedArticle} onClose={closeArticle} />
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      );
+    };
+
+    const OpinionColumn = ({ articles, style }) => {
+      const [expandedArticle, setExpandedArticle] = React.useState(null);
+      if (!articles || articles.length === 0) return null;
+
+      const openArticle = (articleObj) => setExpandedArticle(articleObj);
+      const closeArticle = () => setExpandedArticle(null);
+
+      return (
+        <div className="space-y-6">
+          {articles.map((articleObj) => {
+            if (!articleObj) return null;
+            return (
+              <React.Fragment key={articleObj.id}>
+                <div className="cursor-pointer" onClick={() => openArticle(articleObj)}>
+                  {style.showAuthor && articleObj.author && (
+                    <div className="nyt-opinion-byline">{articleObj.author}</div>
+                  )}
+                  <h3 className="nyt-opinion-title line-clamp-3 hover:text-gray-700">{articleObj.title}</h3>
+                </div>
+                {expandedArticle && expandedArticle.id === articleObj.id && (
+                    <ExpandedArticleView article={expandedArticle} onClose={closeArticle} />
+                )}
+              </React.Fragment>
+            );
+          })}
+        </div>
+      );
+    };
+
+    const InfiniteArticleFeed = ({ articles, cardStyles, pagination }) => {
+      const [displayCount, setDisplayCount] = React.useState(pagination.itemsPerPage || 6);
+      const [expandedArticle, setExpandedArticle] = React.useState(null);
+
+      const loadMore = () => {
+        setDisplayCount((prevCount) => prevCount + (pagination.itemsPerPage || 6));
+      };
+
+      const openArticle = (articleObj) => setExpandedArticle(articleObj);
+      const closeArticle = () => setExpandedArticle(null);
+
+      const placeholderImg = (cat) => `https://placehold.co/400x225/EEE/333?text=${encodeURIComponent(cat || 'News')}`;
+
+      return (
+        <div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+            {articles.slice(0, displayCount).map((articleObj) => {
+              if (!articleObj) return null;
+              const cardStyle = cardStyles[articleObj.priority] || cardStyles['medium'];
+              const imageUrl = articleObj.imageUrl || placeholderImg(articleObj.category);
+
+              return (
+                <React.Fragment key={articleObj.id}>
+                    <div className="cursor-pointer" onClick={() => openArticle(articleObj)}>
+                      {cardStyle.showImage && (
+                        <img
+                          src={imageUrl}
+                          alt={articleObj.title}
+                          className="w-full h-48 object-cover rounded-md mb-3"
+                          onError={(e) => { e.target.onerror = null; e.target.src = placeholderImg(articleObj.category); }}
+                        />
+                      )}
+                      <div>
+                        <h3 className="font-playfair font-semibold text-xl line-clamp-2 mb-2 text-gray-900 hover:text-black">
+                          {articleObj.title}
+                        </h3>
+                        {cardStyle.showAuthor && articleObj.author && (
+                          <div className="text-gray-600 text-sm mb-1">By {articleObj.author}</div>
+                        )}
+                        {cardStyle.showPreview && articleObj.preview && (
+                          <p className="text-gray-700 text-sm line-clamp-3 mb-2">{articleObj.preview}</p>
+                        )}
+                        {cardStyle.showReadingTime && articleObj.readingTime && (
+                          <div className="text-gray-500 text-xs uppercase">{articleObj.readingTime} MIN READ</div>
+                        )}
+                      </div>
+                    </div>
+                    {expandedArticle && expandedArticle.id === articleObj.id && (
+                        <ExpandedArticleView article={expandedArticle} onClose={closeArticle} />
+                    )}
+                </React.Fragment>
+              );
+            })}
+          </div>
+          {displayCount < articles.length && (
+            <div className="text-center">
+              <button
+                onClick={loadMore}
+                className="mt-8 px-6 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm font-medium"
+              >
+                {pagination.loadMoreText || 'Load More Articles'}
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    // --- ARTICLE PROCESSING UTILITIES ---
+    const processArticlesBySection = (articles, layoutConfig) => {
+      const sections = { hero: [], left: [], right: [] };
+      
+      if (!articles || !Array.isArray(articles)) {
+        return sections;
+      }
+
+      // Find section configurations
+      const heroConfig = layoutConfig.find(s => s.id === 'hero-section');
+      const leftConfig = layoutConfig.find(s => s.id === 'left-section');
+      const rightConfig = layoutConfig.find(s => s.id === 'right-section');
+
+      // Process articles based on their assignment and filters
+      articles.forEach(article => {
+        // Hero section processing
+        if (heroConfig && shouldIncludeInSection(article, heroConfig)) {
+          sections.hero.push(article);
+        }
+        
+        // Left section processing
+        if (leftConfig && shouldIncludeInSection(article, leftConfig)) {
+          sections.left.push(article);
+        }
+        
+        // Right section processing
+        if (rightConfig && shouldIncludeInSection(article, rightConfig)) {
+          sections.right.push(article);
+        }
+      });
+
+      // Sort sections by priority/date and apply limits
+      if (heroConfig) {
+        sections.hero = applySectionRules(sections.hero, heroConfig);
+      }
+      if (leftConfig) {
+        sections.left = applySectionRules(sections.left, leftConfig);
+      }
+      if (rightConfig) {
+        sections.right = applySectionRules(sections.right, rightConfig);
+      }
+
+      return sections;
+    };
+
+    const shouldIncludeInSection = (article, sectionConfig) => {
+      const { contentSelector } = sectionConfig;
+      
+      // Check category filters
+      if (contentSelector.categories && contentSelector.categories.length > 0) {
+        if (!contentSelector.categories.includes(article.category)) {
+          return false;
+        }
+      }
+      
+      // Check priority filters
+      if (contentSelector.priorities && contentSelector.priorities.length > 0) {
+        if (!contentSelector.priorities.includes(article.priority)) {
+          return false;
+        }
+      }
+      
+      // Check tags filters
+      if (contentSelector.tags && contentSelector.tags.length > 0) {
+        if (!article.tags || !contentSelector.tags.some(tag => article.tags.includes(tag))) {
+          return false;
+        }
+      }
+      
+      return true;
+    };
+
+    const applySectionRules = (articles, sectionConfig) => {
+      const { contentSelector } = sectionConfig;
+      
+      // Sort articles
+      let sortedArticles = [...articles];
+      if (contentSelector.sortBy === 'date') {
+        sortedArticles.sort((a, b) => new Date(b.date) - new Date(a.date));
+      } else if (contentSelector.sortBy === 'priority') {
+        const priorityOrder = { 'high': 3, 'medium': 2, 'low': 1 };
+        sortedArticles.sort((a, b) => priorityOrder[b.priority] - priorityOrder[a.priority]);
+      }
+      
+      // Apply limit
+      if (contentSelector.limit) {
+        sortedArticles = sortedArticles.slice(0, contentSelector.limit);
+      }
+      
+      return sortedArticles;
+    };
+
+    // --- REBUILT HOME PAGE LOGIC ---
+    const HomePage = () => {
+      const [pageData, setPageData] = React.useState({
+        config: null,
+        sections: null,
+        isLoading: true,
+        error: null,
+        noArticlesFound: false,
+      });
+
+      React.useEffect(() => {
+        fetch('./article.json')
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error(`Failed to fetch article.json: ${res.status} ${res.statusText}`);
+            }
+            return res.json();
+          })
+          .then((jsonData) => {
+            if (!jsonData || !jsonData.config) {
+              throw new Error('The structure of article.json is invalid - missing config.');
+            }
+            
+            // Check if the articles array exists and process it
+            const articles = jsonData.articles || [];
+            
+            if (articles.length === 0) {
+              setPageData({
+                config: jsonData.config,
+                sections: { hero: [], left: [], right: [] },
+                isLoading: false,
+                error: null,
+                noArticlesFound: true,
+              });
+            } else {
+              // Process articles according to layout configuration
+              const processedSections = processArticlesBySection(articles, jsonData.config.layout);
+              
+              setPageData({
+                config: jsonData.config,
+                sections: processedSections,
+                isLoading: false,
+                error: null,
+                noArticlesFound: false,
+              });
+            }
+          })
+          .catch((err) => {
+            console.error('Error fetching or processing articles:', err);
+            setPageData({
+              config: null,
+              sections: null,
+              isLoading: false,
+              error: `Could not load page data. Please ensure 'article.json' exists and is correctly formatted. Details: ${err.message}`,
+              noArticlesFound: false,
+            });
+          });
+      }, []);
+
+      if (pageData.isLoading) return <LoadingState />;
+      if (pageData.error)
+        return (
+          <div className="text-center p-8 text-red-600 bg-red-50 rounded border border-red-300">
+            Error: {pageData.error}
+          </div>
+        );
+        
+      // If no articles are found, display a message to the user.
+      if (pageData.noArticlesFound) {
+        return (
+          <div className="text-center p-8 text-gray-500">
+            <h2 className="text-xl font-semibold mb-2">No Articles to Display</h2>
+            <p>Please use the Article Management System to add new articles.</p>
+          </div>
+        );
+      }
+
+      if (!pageData.config || !pageData.sections) {
+        return (
+          <div className="text-center p-8 text-gray-500">No layout configuration found.</div>
+        );
+      }
+
+      // Deconstruct the loaded data for rendering
+      const { config, sections } = pageData;
+      const { layout } = config;
+
+      // Find the specific sections from the layout configuration
+      const heroSection = layout.find(s => s.id === 'hero-section');
+      const leftSection = layout.find(s => s.id === 'left-section');
+      const rightSection = layout.find(s => s.id === 'right-section');
+      
+      // Get the corresponding articles from the processed sections
+      const heroArticles = sections.hero || [];
+      const leftArticles = sections.left || [];
+      const rightArticles = sections.right || [];
+
+      // Split hero articles for main and sidebar display
+      const mainHeroArticle = heroArticles[0];
+      const sidebarHeroArticles = heroArticles.slice(1);
+
+      return (
+        <div>
+          {/* --- HERO SECTION --- */}
+          {heroSection && (
+            <section className="py-6 border-b border-gray-200 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                <div className="md:col-span-2 lg:col-span-3">
+                  {mainHeroArticle ? (
+                    <MainArticle article={mainHeroArticle} style={heroSection.displayOptions.mainArticle} />
+                  ) : <p className="text-gray-500 text-center p-8">No featured articles available</p>}
+                </div>
+                <div className="md:col-span-1 lg:col-span-1 border-t md:border-t-0 md:border-l border-gray-200 pt-6 md:pt-0 md:pl-8">
+                  {sidebarHeroArticles.length > 0 ? (
+                    <SidebarArticles articles={sidebarHeroArticles} style={heroSection.displayOptions.sidebarArticles} />
+                  ) : (
+                    <p className="text-gray-400 text-sm">No additional featured articles</p>
+                  )}
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* --- MAIN CONTENT (TWO COLUMNS) --- */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column (Main Feed) */}
+            <div className="lg:col-span-2 newspaper-column-border lg:pr-8">
+              {leftSection ? (
+                <>
+                  <SectionHeading title={leftSection.sectionTitle} subtitle={leftSection.subtitle} />
+                  {leftArticles.length > 0 ? (
+                    <InfiniteArticleFeed
+                      articles={leftArticles}
+                      cardStyles={leftSection.cardStyles}
+                      pagination={leftSection.pagination}
+                    />
+                  ) : (
+                    <p className="text-gray-500 text-center p-8">No articles available in this section</p>
+                  )}
+                </>
+              ) : <p className="text-gray-500">News section configuration not found</p>}
+            </div>
+
+            {/* Right Column (Opinion/Features) */}
+            <div className="lg:col-span-1">
+              {rightSection ? (
+                <>
+                  <SectionHeading title={rightSection.sectionTitle} subtitle={rightSection.subtitle} />
+                  {rightArticles.length > 0 ? (
+                    <OpinionColumn
+                      articles={rightArticles}
+                      style={rightSection.cardStyles.high || rightSection.cardStyles.medium}
+                    />
+                  ) : (
+                    <p className="text-gray-400 text-sm">No articles available in this section</p>
+                  )}
+                </>
+              ) : <p className="text-gray-500">Features section configuration not found</p>}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    ReactDOM.render(<HomePage />, document.getElementById('root'));
+  </script>
+</body>
+</html>
